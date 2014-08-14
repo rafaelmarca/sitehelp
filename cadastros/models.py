@@ -1,0 +1,110 @@
+from django.db import models
+# -*- coding: utf-8 -*-
+# Create your models here.
+# exemplo
+#class Poll(models.Model):
+#    question = models.CharField(max_length=200)
+#    pub_date = models.DateTimeField('date published')
+#
+#class Choice(models.Model):
+#    poll = models.ForeignKey(Poll)
+#    choice = models.CharField(max_length=200)
+#    votes = models.IntegerField()
+
+
+# modulos do sistema
+class Modulo(models.Model):
+	modulo = models.CharField(max_length=50)
+	descricao = models.TextField()
+	dt_criacao = models.DateTimeField('Data Criacao',auto_now_add=True)
+	def __unicode__(self):
+		return self.modulo
+
+# modalidades do sistema
+class Modalidade(models.Model):
+	modalidade = models.CharField(max_length=50, verbose_name='Nome')
+	descricao = models.TextField()
+	dt_criacao = models.DateTimeField(auto_now_add=True)
+	def __unicode__(self):
+		return self.modalidade
+
+class ArquivoManager(models.Manager):
+    """
+    The manager for the auth's Group model.
+    """
+    def get_by_natural_key(self, arquivo):
+        return self.get(arquivo=arquivo)
+
+# Arquivos de dados
+class Arquivo(models.Model):
+	"""docstring for Arquivo"""
+	arquivo = models.CharField(max_length=50,verbose_name='Nome')
+	descricao = models.TextField()
+        objects = ArquivoManager()
+   
+        class Meta:
+              verbose_name = ('arquivo')
+              verbose_name_plural = ('arquivos')
+
+	def __unicode__(self):
+		return self.arquivo
+
+        def natural_key(self):
+                return (self.arquivo,)
+
+class ProgramaManager(models.Manager):
+    def get_by_natural_key(self, programa, descricao):
+        return self.get(
+            programa=programa,
+            content_type=ContentType.objects.get_by_natural_key(programa,
+                                                                descricao),
+        )
+
+# programs do sistema
+class Programa(models.Model):
+	modulo = models.ForeignKey(Modulo)
+	modalidade = models.ForeignKey(Modalidade)
+	programa = models.CharField(max_length=50,verbose_name='Nome')
+	descricao = models.TextField()
+	arquivos = models.ManyToManyField(Arquivo, verbose_name=('arquivos'), blank=True)
+	dt_criacao = models.DateTimeField(auto_now_add=True)
+        
+
+        objects = ProgramaManager() 
+       
+        class Meta:
+              verbose_name = ('programa')
+              verbose_name_plural = ('programas')
+
+	def __unicode__(self):
+		return self.programa
+
+        def natural_key(self):
+               return (self.programa,)
+
+# Analistas da empresa
+class Analista(models.Model):
+	analista = models.CharField(max_length=100,verbose_name='Nome')
+	dt_criacao = models.DateTimeField(auto_now_add=True)
+	def __unicode__(self):
+		return self.analista
+
+# Alteracoes nos programas realizadas ao longo do tempo
+class Alteracao(models.Model):
+	programa = models.ForeignKey(Programa)
+	analista = models.ForeignKey(Analista)
+	dt_alteracao = models.DateTimeField()
+	descricao = models.TextField()
+	def __unicode__(self):
+		return self.dt_alteracao
+
+
+
+
+
+
+
+
+
+
+
